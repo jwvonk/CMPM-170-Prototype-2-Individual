@@ -141,7 +141,7 @@ function update() {
 
   remove(enemies, (e) => {
     e.pos.add(
-      e.isMovingLeft ? -G.ENEMY_SPEED : G.ENEMY_SPEED,
+      e.isMovingLeft ? -G.ENEMY_SPEED * 2 : G.ENEMY_SPEED * 2,
       e.isMovingUp ? -G.ENEMY_SPEED : G.ENEMY_SPEED
     );
 
