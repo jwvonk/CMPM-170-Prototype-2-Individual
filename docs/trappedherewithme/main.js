@@ -35,6 +35,7 @@ const G = {
   MAX_X: 141,
   MAX_Y: 93,
   TELEPORT_DIST: 50,
+  SCORE_COOLDOWN: 60,
 
   TL: 0,
   TR: 1,
@@ -82,6 +83,11 @@ let player;
  */
 let enemies;
 
+/**
+ * @type { number }
+ */
+let scoreCooldown;
+
 function update() {
   if (!ticks) {
     player = {
@@ -94,9 +100,16 @@ function update() {
     };
 
     enemies = [];
+    scoreCooldown = G.SCORE_COOLDOWN;
   }
 
-  if (enemies.length < difficulty * 3 - 1) {
+  scoreCooldown--;
+  if (scoreCooldown <= 0) {
+    addScore(1);
+    scoreCooldown = G.SCORE_COOLDOWN;
+  }
+
+  if (enemies.length < difficulty * 3 - 2) {
     let pos = vec();
     do {
       if (rnd() > 0.5) {
@@ -154,8 +167,12 @@ function update() {
 
   remove(enemies, (e) => {
     e.pos.add(
-      e.isMovingLeft ? -G.ENEMY_SPEED : G.ENEMY_SPEED,
-      e.isMovingUp ? -G.ENEMY_SPEED / 2 : G.ENEMY_SPEED / 2
+      e.isMovingLeft
+        ? (-G.ENEMY_SPEED / 2) * difficulty
+        : (G.ENEMY_SPEED / 2) * difficulty,
+      e.isMovingUp
+        ? (-G.ENEMY_SPEED / 4) * difficulty
+        : (G.ENEMY_SPEED / 4) * difficulty
     );
 
     Bounce(e);
