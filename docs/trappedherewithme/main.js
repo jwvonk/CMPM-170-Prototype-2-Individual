@@ -1,13 +1,12 @@
 title = "TRAPPED HERE WITH ME";
 
-description =
-`
+description = `
 Dash Through Enemies
      to Survive
 `;
 
 characters = [
-`
+  `
 g Y gg
 g Yg  
  gyyYY
@@ -35,7 +34,7 @@ const G = {
   MIN_Y: 3,
   MAX_X: 141,
   MAX_Y: 93,
-  TELEPORT_DIST: 30,
+  TELEPORT_DIST: 50,
 
   TL: 0,
   TR: 1,
@@ -68,7 +67,7 @@ options = {
 /**
  * @type { Player }
  */
-let player; 
+let player;
 
 /**
  * @typedef {{
@@ -98,12 +97,26 @@ function update() {
   }
 
   if (enemies.length < difficulty * 3 - 1) {
-      let pos = vec();
-      do {
-        pos.set(rnd(G.MIN_X, G.MAX_X), rnd(G.MIN_Y, G.MAX_Y));
-      } while (pos.distanceTo(player.pos) < 30);
-      enemies.push({ pos, isMovingLeft: rnd() > 0.5, isMovingUp: rnd() > 0.5 });
-    }
+    let pos = vec();
+    do {
+      if (rnd() > 0.5) {
+        if (rnd() > 0.5) {
+          pos.x = G.MIN_X;
+        } else {
+          pos.x = G.MAX_X;
+        }
+        pos.y = rnd(G.MIN_Y, G.MAX_Y);
+      } else {
+        if (rnd() > 0.5) {
+          pos.y = G.MIN_Y;
+        } else {
+          pos.y = G.MAX_Y;
+        }
+        pos.x = rnd(G.MIN_X, G.MAX_X);
+      }
+    } while (pos.distanceTo(player.pos) < G.TELEPORT_DIST);
+    enemies.push({ pos, isMovingLeft: rnd() > 0.5, isMovingUp: rnd() > 0.5 });
+  }
 
   player.pos.add(
     player.isMovingLeft ? -player.speed : player.speed,
@@ -113,8 +126,8 @@ function update() {
   player.dashCooldown--;
 
   if (input.isJustPressed && player.dashCooldown <= 0) {
-    color ("light_green");
-    particle(player.pos, undefined, .5);
+    color("light_green");
+    particle(player.pos, undefined, 0.5);
     LineToTarget(player);
     player.pos.add(
       player.isMovingLeft ? -G.TELEPORT_DIST : G.TELEPORT_DIST,
@@ -141,8 +154,8 @@ function update() {
 
   remove(enemies, (e) => {
     e.pos.add(
-      e.isMovingLeft ? -G.ENEMY_SPEED * 2 : G.ENEMY_SPEED * 2,
-      e.isMovingUp ? -G.ENEMY_SPEED : G.ENEMY_SPEED
+      e.isMovingLeft ? -G.ENEMY_SPEED : G.ENEMY_SPEED,
+      e.isMovingUp ? -G.ENEMY_SPEED / 2 : G.ENEMY_SPEED / 2
     );
 
     Bounce(e);
@@ -155,7 +168,7 @@ function update() {
       color("yellow");
       particle(e.pos);
       play("explosion");
-      addScore(enemies.length, e.pos)
+      addScore(enemies.length, e.pos);
     }
 
     return isCollidingWithLine;
